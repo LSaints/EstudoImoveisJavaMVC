@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+    <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Comparar Imóvel - Home</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Imóveis</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/compare}">Comparar Imóveis</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2 class="text-primary text-center">Adicionar Imóvel para Comparação</h2>
+                    <p class="text-center">
+                        Preencha os detalhes do imóvel que você deseja utilizar para comparar com a média dos outros imóveis.
+                    </p>
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <form method="post" th:action="@{/imovel}" th:object="${imovel}">
+                                <input type="hidden" th:field="*{principal}" value="1">
+                                <div class="mb-3">
+                                    <label for="link" class="form-label">Link do Imóvel</label>
+                                    <input type="url" class="form-control" th:field="*{link}" id="link" placeholder="Inserir link do imóvel">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nome" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" th:field="*{nome}" id="nome" placeholder="Inserir nome do imóvel" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="endereco" class="form-label">Endereço</label>
+                                    <input type="text" class="form-control" th:field="*{endereco}" id="endereco" placeholder="Inserir endereço" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bairro" class="form-label">Bairro</label>
+                                    <input type="text" class="form-control" th:field="*{bairro}" id="bairro" placeholder="Inserir bairro" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="areaUtil" class="form-label">Área Útil (m²)</label>
+                                    <input type="number" class="form-control" th:field="*{areaUtil}" id="areaUtil" placeholder="Inserir área útil" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dormitorios" class="form-label">Dormitórios</label>
+                                    <input type="number" class="form-control" th:field="*{dormitorios}" id="dormitorios" placeholder="Inserir quantidade de dormitórios" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="suites" class="form-label">Suítes</label>
+                                    <input type="number" class="form-control" th:field="*{suites}" id="suites" placeholder="Inserir quantidade de suítes" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="banheiros" class="form-label">Banheiros</label>
+                                    <input type="number" class="form-control" th:field="*{banheiros}" id="banheiros" placeholder="Inserir quantidade de banheiros" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vagas" class="form-label">Vagas</label>
+                                    <input type="number" class="form-control" th:field="*{vagas}" id="vagas" placeholder="Inserir quantidade de vagas" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="preco" class="form-label">Preço (R$)</label>
+                                    <input type="number" class="form-control" th:field="*{preco}" id="preco" placeholder="Inserir preço" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

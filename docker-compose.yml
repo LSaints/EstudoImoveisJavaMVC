@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/imoveisdb
+      SPRING_DATASOURCE_USERNAME: imoveis
+      SPRING_DATASOURCE_PASSWORD: 123123
+
+  mysql:
+    image: mysql:8.0
+    container_name: database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      MYSQL_DATABASE: imoveisdb
+      MYSQL_USER: imoveis
+      MYSQL_PASSWORD: 123123
+    ports:
+      - "3306:3306"

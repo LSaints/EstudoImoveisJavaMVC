@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+    <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Amostras de Imóveis</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .sample-item img {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
+                border-radius: 5px;
+            }
+            .sample-item {
+                border: 1px solid #ddd;
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 5px;
+                background-color: #fff;
+            }
+            .remove-btn {
+                background-color: #e63946;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body class="bg-light">
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Imóveis</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/compare}">Comparar Imóveis</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title text-primary">Adicionar Amostra</h2>
+                            <form id="sample-form" method="post" th:action="@{/imovel}" th:object="${imovel}">
+                                <div class="mb-3">
+                                    <label for="link" class="form-label">Link do Imóvel</label>
+                                    <input type="url" class="form-control" th:field="*{link}" id="link" name="link" placeholder="Inserir link do imóvel">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imagem" class="form-label">Imagem</label>
+                                    <input type="text" class="form-control" th:field="*{imagemUrl}" id="imagem" name="imagem" placeholder="Inserir URL da imagem" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nome" class="form-label">Nome</label>
+                                    <input type="text" class="form-control" th:field="*{nome}" id="nome" name="nome" placeholder="Inserir nome" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="endereco" class="form-label">Endereço</label>
+                                    <input type="text" class="form-control" th:field="*{endereco}" id="endereco" name="endereco" placeholder="Inserir endereço" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bairro" class="form-label">Bairro</label>
+                                    <input type="text" class="form-control" th:field="*{bairro}" id="bairro" name="bairro" placeholder="Inserir bairro" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="area-util" class="form-label">Área Útil (m²)</label>
+                                    <input type="number" class="form-control" th:field="*{areaUtil}" id="area-util" name="area-util" placeholder="Inserir área útil" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dormitorios" class="form-label">Dormitórios</label>
+                                    <input type="number" class="form-control" th:field="*{dormitorios}" id="dormitorios" name="dormitorios" placeholder="Inserir quantidade de dormitórios" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="suites" class="form-label">Suítes</label>
+                                    <input type="number" class="form-control" th:field="*{suites}" id="suites" name="suites" placeholder="Inserir quantidade de suítes" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="banheiros" class="form-label">Banheiros</label>
+                                    <input type="number" class="form-control" th:field="*{banheiros}" id="banheiros" name="banheiros" placeholder="Inserir quantidade de banheiros" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vagas" class="form-label">Vagas</label>
+                                    <input type="number" class="form-control" th:field="*{vagas}" id="vagas" name="vagas" placeholder="Inserir quantidade de vagas" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="preco" class="form-label">Preço (R$)</label>
+                                    <input type="number" class="form-control" th:field="*{preco}" id="preco" name="preco" placeholder="Inserir preço" required>
+                                </div>
+                                <button th:if="${#lists.size(listImovel) < 4}" type="submit" class="btn btn-primary w-100">Adicionar Amostra</button>
+                                <button th:if="${#lists.size(listImovel) >= 4}" type="button" class="btn btn-secondary disabled" aria-disabled="true">Adicionar Amostra</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+
+                    <h2 class="text-primary">Amostras de Imóveis</h2>
+                    <div id="sample-items" th:each="imovel: ${listImovel}">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary" th:text="${imovel.nome}"></h5>
+                                <img th:src="${imovel.imagemUrl}" class="card-img-top" alt="Imagem do Imóvel">
+                                <p class="card-text">
+                                    <strong>Endereço:</strong> <span th:text="${imovel.endereco}"></span><br>
+                                    <strong>Área Útil:</strong> <span th:text="${imovel.areaUtil}"></span> m²<br>
+                                    <strong>Dormitórios:</strong> <span th:text="${imovel.dormitorios}"></span><br>
+                                    <strong>Suítes:</strong> <span th:text="${imovel.suites}"></span><br>
+                                    <strong>Banheiros:</strong> <span th:text="${imovel.banheiros}"></span><br>
+                                    <strong>Vagas:</strong> <span th:text="${imovel.vagas}"></span><br>
+                                    <strong>Preço:</strong> <span th:text="${imovel.preco}"></span><br>
+                                    <strong>Preço por m²:</strong> <span th:text="${imovel.precom2}"></span><br>
+                                </p>
+                                <form th:action="@{/imovel/{id}(id=${imovel.id})}" method="post" onsubmit="return confirm('Tem certeza que deseja deletar esta amostra? ID: ' + /*[[${imovel.id}]]*/ '');">
+                                    <input type="hidden" name="_method" value="delete">
+                                    <button type="submit" class="btn btn-danger remove-btn">Deletar Amostra</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form method="get" th:action="@{/gerar-relatorio}">
+                <div class="mb-3">
+                    <label for="imovelBase" class="form-label">Escolha o Imóvel Base</label>
+                    <select class="form-select" id="imovelBase" name="imovelId" required>
+                        <option value="" disabled selected>Selecione um imóvel</option>
+                        <option th:each="imovel : ${listImovelPrincipais}"
+                                th:value="${imovel.id}"
+                                th:text="${imovel.nome}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+            </form>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script th:src="@{/js/deleteAmostra.js}"></script>
+    </body>
+</html>
