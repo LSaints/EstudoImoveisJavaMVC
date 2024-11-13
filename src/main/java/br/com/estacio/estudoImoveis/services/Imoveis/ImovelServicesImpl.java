@@ -4,10 +4,20 @@ import br.com.estacio.estudoImoveis.models.EstudoImovel;
 import br.com.estacio.estudoImoveis.models.Imovel;
 import br.com.estacio.estudoImoveis.repository.EstudoImovelRepository;
 import br.com.estacio.estudoImoveis.repository.ImovelRepository;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,18 +64,86 @@ public class ImovelServicesImpl implements ImovelServices {
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
 
-            // Obtenha os dados do imóvel
+            pdf.setDefaultPageSize(PageSize.A4);
+            document.setMargins(20, 20, 20, 20);
+
+            PdfFont titleFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont contentFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+
+            Paragraph header = new Paragraph("Relatório de Imóvel")
+                    .setFont(titleFont)
+                    .setFontSize(18)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(20);
+            document.add(header);
+
             Imovel imovel = imovelRepository.getById(imovelId);
+
             if (imovel == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Imóvel não encontrado");
-                return "redirect:compare";
+                return "redirect:/compare";
             }
 
-            // Adicione o conteúdo ao PDF
-            document.add(new Paragraph("Relatório de Imóvel"));
-            document.add(new Paragraph("ID: " + imovel.getId()));
-            document.add(new Paragraph("Nome: " + imovel.getNome()));
-            // Adicione mais informações conforme necessário
+            document.add(new Paragraph("ID do Imóvel: " + imovel.getId())
+                    .setFont(contentFont)
+                    .setFontSize(12)
+                    .setMarginBottom(5));
+            document.add(new Paragraph("Nome: " + imovel.getNome())
+                    .setFont(contentFont)
+                    .setFontSize(12)
+                    .setMarginBottom(5));
+
+            document.add(new LineSeparator(new SolidLine()));
+
+            Table table = new Table(UnitValue.createPercentArray(2)).useAllAvailableWidth();
+            table.addHeaderCell(new Cell().add(new Paragraph("Detalhe").setFont(titleFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Valor").setFont(titleFont)));
+
+            table.addCell("Área Total");
+            table.addCell(String.valueOf(imovel.getAreaUtil()) + " m²");
+
+            table.addCell("Preço");
+            table.addCell("R$ " + String.format("%.2f", imovel.getPreco()));
+
+            document.add(table);
+
+            List<Imovel> allImoveis = fetchAllImoveis();
+            List<Imovel> filteredImoveis = allImoveis.stream()
+                    .filter(imoveis -> !imoveis.isPrincipal())
+                    .collect(Collectors.toList());
+            model.addAttribute("listImovel", filteredImoveis);
+
+            EstudoImovel estudoImovel = new EstudoImovel();
+            estudoImovel.setImovel(imovel);
+            estudoImovel.setPrecoMedio(calcularMediaPreco(filteredImoveis));
+            estudoImovel.setAreaPrivMedia(calcularMediaAreaPriv(filteredImoveis));
+            estudoImovel.setPrecom2Medio(calcularMediaPrecom2(filteredImoveis));
+
+            estudoImovelRepository.save(estudoImovel);
+
+            Paragraph analisePrecoMedio = new Paragraph("Preço Médio: R$ " + String.format("%.2f", estudoImovel.getPrecoMedio()))
+                    .setFont(contentFont)
+                    .setFontSize(12)
+                    .setMarginTop(10);
+            document.add(analisePrecoMedio);
+
+            Paragraph analiseAreaMedia = new Paragraph("Área Privada Média: " + String.format("%.2f", estudoImovel.getAreaPrivMedia()) + " m²")
+                    .setFont(contentFont)
+                    .setFontSize(12);
+            document.add(analiseAreaMedia);
+
+            Paragraph analisePrecoMetro2 = new Paragraph("Preço m2 médio: R$" + String.format("%.2f", estudoImovel.getPrecom2Medio()))
+                    .setFont(contentFont)
+                    .setFontSize(12);
+            document.add(analisePrecoMetro2);
+
+            Paragraph conclusion = new Paragraph("Este relatório foi gerado com base nas informações mais recentes.")
+                    .setFont(contentFont)
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginTop(20)
+                    .setItalic();
+            document.add(conclusion);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,22 +153,6 @@ public class ImovelServicesImpl implements ImovelServices {
                 ioException.printStackTrace();
             }
         }
-
-        List<Imovel> allImoveis = fetchAllImoveis();
-        List<Imovel> filteredImoveis = allImoveis.stream()
-                .filter(imovel -> !imovel.isPrincipal())
-                .collect(Collectors.toList());
-        model.addAttribute("listImovel", filteredImoveis);
-
-        Imovel imovel = getImovelById(imovelId);
-
-        EstudoImovel estudoImovel = new EstudoImovel();
-        estudoImovel.setImovel(imovel);
-        estudoImovel.setPrecoMedio(calcularMediaPreco(filteredImoveis));
-        estudoImovel.setAreaPrivMedia(calcularMediaAreaPriv(filteredImoveis));
-        estudoImovel.setPrecom2Medio(calcularMediaPrecom2(filteredImoveis));
-
-        estudoImovelRepository.save(estudoImovel);
 
         return "redirect:/compare";
     }
@@ -146,10 +208,11 @@ public class ImovelServicesImpl implements ImovelServices {
         double somaPreco = 0;
 
         for (Imovel imovel : imoveis) {
-            somaPreco += imovel.getPreco();
+           somaPreco += imovel.getPreco();
         }
 
-        return somaPreco / imoveis.size();
+        int listSize = imoveis.size() + 1;
+        return somaPreco / listSize;
     }
 
     private double calcularMediaAreaPriv(List<Imovel> imoveis) {
@@ -163,7 +226,8 @@ public class ImovelServicesImpl implements ImovelServices {
             somaAreaPriv += imovel.getAreaUtil();
         }
 
-        return somaAreaPriv / imoveis.size();
+        int listCount = imoveis.size() + 1;
+        return somaAreaPriv / listCount;
     }
 
     private double calcularMediaPrecom2(List<Imovel> imoveis) {
@@ -176,8 +240,8 @@ public class ImovelServicesImpl implements ImovelServices {
         for (Imovel imovel : imoveis) {
             somaPrecom2 += imovel.getPrecom2();
         }
-
-        return somaPrecom2 / imoveis.size();
+        int listCount = imoveis.size() + 1;
+        return somaPrecom2 / listCount;
     }
 }
 
