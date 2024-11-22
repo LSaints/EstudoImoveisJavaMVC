@@ -59,7 +59,7 @@
                             <form id="sample-form" method="post" th:action="@{/imovel}" th:object="${imovel}">
                                 <div class="mb-3">
                                     <label for="link" class="form-label">Link do Imóvel</label>
-                                    <input type="url" class="form-control" th:field="*{link}" id="link" name="link" placeholder="Inserir link do imóvel">
+                                    <input type="url" class="form-control" th:field="*{link}" id="link" name="link" placeholder="Inserir link do imóvel" disabled>
                                 </div>
                                 <div class="mb-3">
                                     <label for="imagem" class="form-label">Imagem</label>
